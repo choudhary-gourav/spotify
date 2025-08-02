@@ -1,3 +1,5 @@
+  let currentsong = new Audio();
+
 async function fetchSongs() {
   try {
     const res = await fetch("http://127.0.0.1:3000/songs/");
@@ -23,30 +25,66 @@ async function fetchSongs() {
     return [];
   }
 }
+const playmusic = (track)=>{
+  currentsong.src = /songs/ + track
+  currentsong.play();
+  document.querySelector(".songinformation").innerHTML = track.replace("hindi songs/", "")
+      .replace(/\(.*?\)/g, "")
+      .replace(/www\.[^\s]+/g, "")
+      .replace(/[_\-]+/g, " ")
+      .replace(/\.mp3$/i, "")
+      .replace(/^\d{1,2}\s*[\.\-\_]?/, "")
+      .replace(/\s+/g, " ")
+      .replaceAll("%20", " ");
+  document.querySelector(".songtime").innerHTML = "00:00 / 00:00"
+  
+}
 async function main() {
-    let songs = await fetchSongs()
-    console.log(songs)
-   let songUL= document.querySelector(".songlist").getElementsByTagName("ul")[0]
-   for (const song of songs) {
-    
-    songUL.innerHTML=songUL.innerHTML +  `<li>
-                <img src="Assest/music.svg" alt="">
-                <div class="songinfo">
-                  <div class="songname">${song.replace("hindi songs/", "")            
-    .replace(/\(.*?\)/g, "")               
-    .replace(/www\.[^\s]+/g, "")            
-    .replace(/[_\-]+/g, " ")                
-    .replace(/\.mp3$/i, "")                 
-    .replace(/^\d{1,2}\s*[\.\-\_]?/, "")   
-    .replace(/\s+/g, " ")    
-    .replaceAll("%20"," ")               
-    .trim()}</div>
-                  <div class="songArtist">Gourav Choudhary</div>
-                </div>
-                
-              </li>`;
- }
-     var audio = new Audio(songs[0]);
-     audio.play()
+
+  let songs = await fetchSongs();
+  console.log(songs);
+
+  let songUL = document.querySelector(".songlist ul");
+  songUL.innerHTML = ""; // clear existing
+
+  for (const song of songs) {
+    const cleanedSongName = song
+      .replace("hindi songs/", "")
+      .replace(/\(.*?\)/g, "")
+      .replace(/www\.[^\s]+/g, "")
+      .replace(/[_\-]+/g, " ")
+      .replace(/\.mp3$/i, "")
+      .replace(/^\d{1,2}\s*[\.\-\_]?/, "")
+      .replace(/\s+/g, " ")
+      .replaceAll("%20", " ")
+      .trim();
+
+    songUL.innerHTML += `
+      <li data-file="${song}">
+        <img src="Assest/Images/music.svg" alt="">
+        <div class="songinfo">
+          <div class="songname">${cleanedSongName}</div>
+          <div class="songArtist">Gourav Choudhary</div>
+        </div>
+      </li>`;
+  }
+
+  // Add click event to each <li>
+  document.querySelectorAll(".songlist li").forEach(e => {
+    e.addEventListener("click", () => {
+      const actualFile = e.getAttribute("data-file");
+      console.log("Playing:", actualFile);
+      playmusic(actualFile);
+    });
+  });
+  play.addEventListener("click",()=>{
+    if(currentsong.paused){
+      currentsong.play()
+    }
+    else{
+      currentsong.pause()
+    }
+  })
+
 }
 main()
